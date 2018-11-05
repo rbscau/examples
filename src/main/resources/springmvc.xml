@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 普通类对象，定义任务的业务处理 -->
+    <bean id="myJob" class="hello.MyJob">
+    </bean>
+
+    <!-- 任务详情，指定任务的类对象以及执行方法 -->                           
+    <bean id="testJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    	<!-- 需要执行的对象 -->
+        <property name="targetObject" ref="myJob"></property>
+        <!-- 执行的方法 -->      
+        <property name="targetMethod" value="method1"></property>
+        <!-- 可否同时发生，true:当此方法的一个执行没有结束时，另外一个执行已经到来，则两个执行同时进行; false:当触发了一个方法时，若已有一个方法正在在运行，则新触发的方法先等待 -->
+        <property name="concurrent" value="false"></property>
+    </bean>
+    
+    <!-- cron 定时器，根据表达式定时任务。 -->
+    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="name" value="cronTrigger"></property>
+        <property name="group" value="liby.com.cn"></property>
+        <property name="jobDetail" ref="testJob"></property>
+        <property name="cronExpression" value="0/1 * * * * ?"></property>
+    </bean>
+    
+	<!-- 	任务计划清单    新加的任务在list添加即可 -->    
+    <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="cronTrigger"></ref>
+            </list>
+        </property>
+    </bean>
+</beans>
